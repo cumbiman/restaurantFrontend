@@ -1,8 +1,41 @@
+<template>
+  <header>
+    What's open
+    <!-- Find restaurants that are open now -->
+    <a @click.stop.prevent="getOpenRestaurantsNow">now</a>? Or
+    <!-- Find restaurants that are open later -->
+    <template v-if="!showDatePicker">
+      <a @click.stop.prevent="showDatePicker = !showDatePicker">later</a>?</template
+    >
+    <!-- Date/time picker -->
+    <template v-else>
+      <input
+        type="datetime-local"
+        class="later"
+        @input="(event) => getOpenRestaurants(event.target.value)"
+      />
+      ?</template
+    >
+  </header>
+
+  <!-- List of results -->
+  <RestaurantItem
+    v-for="(restaurant, index) in openRestaurants.restaurants"
+    :key="index"
+    :restaurant="restaurant"
+  >
+  </RestaurantItem>
+</template>
+
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
+import RestaurantItem from "./components/RestaurantItem.vue";
 
 // Store list of open restaurants
 const openRestaurants = reactive({ restaurants: [] });
+
+// Whether to show the date picker or not
+const showDatePicker = ref(false);
 
 /**
  * Queries the API for all open restaurants for the entered date and time.
@@ -24,7 +57,7 @@ async function getOpenRestaurants(dateTime) {
     .toString()
     .padStart(2, "0")}`;
 
-  console.log(`${parsedDate} ${parsedTime}`);
+  console.log(`Parsed date/time: ${parsedDate} ${parsedTime}`);
 
   // Fetch the list of open restaurants from the API
   const apiResult = await fetch(
@@ -45,37 +78,22 @@ async function getOpenRestaurants(dateTime) {
 }
 
 /**
- * Displays the datepicker input.
+ * Fires when "now" is clicked. Hides datepicker (if it's visible) before fetching list of
+ * open restaurants.
  */
-function showDatePicker() {
-  document.getElementById("later").focus();
+function getOpenRestaurantsNow() {
+  showDatePicker.value = false;
+  getOpenRestaurants(Date.now());
 }
 </script>
-
-<template>
-  <header>
-    What's open <a @click.stop.prevent="() => getOpenRestaurants(Date.now())">now</a>? Or
-    <a @click.stop.prevent="showDatePicker">later</a>?
-  </header>
-  <input
-    type="datetime-local"
-    id="later"
-    @input="(event) => getOpenRestaurants(event.target.value)"
-  />
-
-  <ul>
-    <li v-for="(restaurant, index) in openRestaurants.restaurants" :key="index">
-      {{ restaurant }}
-    </li>
-  </ul>
-</template>
 
 <style scoped>
 header {
   font-size: x-large;
+  margin: 20px;
 }
 
-input#later {
+.later {
   background-color: var(--color-background-soft);
   color: var(--color-text);
   border: 1px solid var(--color-border);
@@ -83,15 +101,24 @@ input#later {
   font-size: large;
 }
 
+@media (prefers-color-scheme: dark) {
+  .later {
+    color-scheme: dark;
+  }
+
+  ::-webkit-calendar-picker-indicator {
+    filter: brightness(75%);
+  }
+}
+
 a {
   color: var(--color-text);
   text-decoration: underline;
   text-decoration-color: var(--color-text);
-  transition: all 0.5s ease;
+  transition: all 0.2s ease;
 }
 
 a:hover {
-  /* color: var(--color-text); */
   filter: brightness(50%);
   cursor: pointer;
   text-decoration-color: transparent;
