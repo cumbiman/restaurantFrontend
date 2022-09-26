@@ -101,7 +101,6 @@ header {
 .results {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  height: calc(100vh - 50%);
   align-content: flex-start;
 }
 
