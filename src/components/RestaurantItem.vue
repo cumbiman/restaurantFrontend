@@ -1,3 +1,4 @@
+/** Component used to display each open restaurant */
 <template>
   <div class="restaurant">
     {{ restaurant }}

@@ -1,3 +1,4 @@
+/** Main component */
 <template>
   <header>
     <div>
@@ -20,7 +21,7 @@
     </div>
   </header>
 
-  <results>
+  <div class="results">
     <!-- List of results -->
     <RestaurantItem
       v-for="(restaurant, index) in openRestaurants"
@@ -28,7 +29,7 @@
       :restaurant="restaurant"
     >
     </RestaurantItem>
-  </results>
+  </div>
 </template>
 
 <script setup>
@@ -60,8 +61,6 @@ async function getOpenRestaurants(dateTime) {
   )
     .toString()
     .padStart(2, "0")}`;
-
-  console.log(`Parsed date/time: ${parsedDate} ${parsedTime}`);
 
   // Fetch the list of open restaurants from the API
   const apiResult = await fetch(
@@ -99,27 +98,27 @@ header {
   justify-content: center;
 }
 
-results {
+.results {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   height: calc(100vh - 50%);
   align-content: flex-start;
 }
 
-@media (max-width: 1024px) {
-  results {
+@media only screen and (max-width: 1024px) {
+  .results {
     grid-template-columns: repeat(6, 1fr);
   }
 }
 
-@media (max-width: 800px) {
-  results {
+@media only screen and (max-width: 800px) {
+  .results {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media only screen and (max-width: 600px) {
-  results {
+  .results {
     grid-template-columns: 1fr;
   }
 }
