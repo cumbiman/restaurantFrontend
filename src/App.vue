@@ -1,38 +1,42 @@
 <template>
   <header>
-    What's open
-    <!-- Find restaurants that are open now -->
-    <a @click.stop.prevent="getOpenRestaurantsNow">now</a>? Or
-    <!-- Find restaurants that are open later -->
-    <template v-if="!showDatePicker">
-      <a @click.stop.prevent="showDatePicker = !showDatePicker">later</a>?</template
-    >
-    <!-- Date/time picker -->
-    <template v-else>
-      <input
-        type="datetime-local"
-        class="later"
-        @input="(event) => getOpenRestaurants(event.target.value)"
-      />
-      ?</template
-    >
+    <div>
+      What's open
+      <!-- Find restaurants that are open now -->
+      <a @click.stop.prevent="getOpenRestaurantsNow">now</a>? Or
+      <!-- Find restaurants that are open later -->
+      <template v-if="!showDatePicker">
+        <a @click.stop.prevent="showDatePicker = !showDatePicker">later</a>?</template
+      >
+      <!-- Date/time picker -->
+      <template v-else>
+        <input
+          type="datetime-local"
+          class="later"
+          @input="(event) => getOpenRestaurants(event.target.value)"
+        />
+        ?</template
+      >
+    </div>
   </header>
 
-  <!-- List of results -->
-  <RestaurantItem
-    v-for="(restaurant, index) in openRestaurants.restaurants"
-    :key="index"
-    :restaurant="restaurant"
-  >
-  </RestaurantItem>
+  <results>
+    <!-- List of results -->
+    <RestaurantItem
+      v-for="(restaurant, index) in openRestaurants"
+      :key="index"
+      :restaurant="restaurant"
+    >
+    </RestaurantItem>
+  </results>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import RestaurantItem from "./components/RestaurantItem.vue";
 
 // Store list of open restaurants
-const openRestaurants = reactive({ restaurants: [] });
+const openRestaurants = ref([]);
 
 // Whether to show the date picker or not
 const showDatePicker = ref(false);
@@ -74,7 +78,7 @@ async function getOpenRestaurants(dateTime) {
   const results = await apiResult.json();
 
   // Load the results into the reactive object so they can be rendered on the page
-  openRestaurants.restaurants = [...results.restaurants];
+  openRestaurants.value = [...results.restaurants];
 }
 
 /**
@@ -90,7 +94,34 @@ function getOpenRestaurantsNow() {
 <style scoped>
 header {
   font-size: x-large;
-  margin: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+results {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  height: calc(100vh - 50%);
+  align-content: flex-start;
+}
+
+@media (max-width: 1024px) {
+  results {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  results {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  results {
+    grid-template-columns: 1fr;
+  }
 }
 
 .later {
